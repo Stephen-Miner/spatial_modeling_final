@@ -24,8 +24,9 @@
 
     let engine = ThreeEngine.new_default_3d();
 
-    engine.animation_loop( ()  => {
 
+    engine.animation_loop( ()  => {
+        engine.draw_debug_sphere([0,0,0], 1, 0xFDB813)
     });
 
 </script>
