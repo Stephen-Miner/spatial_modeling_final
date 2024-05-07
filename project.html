@@ -21,12 +21,65 @@
 <body>
 <script type="module">
     import {ThreeEngine} from "./js/utils/utils_three.js";
+    import {TransformGizmoEngine} from "./js/utils/utils_transform_gizmo.js";
+    import {get_default_lil_gui} from "./js/utils/utils_three.js";
+    import {add_matrix_matrix, mul_matrix_scalar} from "./js/utils/utils_math.js";
+    import {refresh_displays} from "./js/utils/utils_three.js";
+    import {set_object_pose_from_SE3_matrix} from "./js/utils/utils_transforms.js";
+    import {mul_matrix_matrix} from "./js/utils/utils_math.js";
+
 
     let engine = ThreeEngine.new_default_3d();
 
+    let earth = {
+        t: 0,
+        a: 7,
+        b: 4,
+        theta_1: 0,
+        theta_2: 0,
+        theta_3: 0,
+        speed: 1
+    }
+
+    let gui = get_default_lil_gui();
+
+    let earth_controls = gui.addFolder("Earth Controls");
+    earth_controls.add(earth, "theta_1", -2 * Math.PI, 2 * Math.PI);
+    earth_controls.add(earth, "theta_2", -2 * Math.PI, 2 * Math.PI);
+    earth_controls.add(earth, "theta_3", -2 * Math.PI, 2 * Math.PI);
+    earth_controls.add(earth, "speed", -3, 3);
+
+    function get_point_from_so3_and_t(so3, t, start_point) {
+        //let from_start = mul_matrix_matrix(so3, start_point)
+        let translated = add_matrix_matrix(so3, t)
+        return translated.flat();
+    }
+
+    function get_orbit_points () {
+
+    }
+
+    let earth_start = [[0],[0],[0]];
 
     engine.animation_loop( ()  => {
-        engine.draw_debug_sphere([0,0,0], 1, 0xFDB813)
+        earth.t = earth.t + engine.get_delta_time_from_last_frame() * (earth.speed * Math.PI);
+
+        let earth_so3 = [
+            [Math.cos(earth.theta_2) * Math.cos(earth.theta_3), -Math.cos(earth.theta_2)*Math.sin(earth.theta_3), Math.sin(earth.theta_2)],
+            [Math.cos(earth.theta_3) * Math.sin(earth.theta_1) * Math.sin(earth.theta_2) + Math.cos(earth.theta_1) * Math.sin(earth.theta_3), Math.cos(earth.theta_1) * Math.cos(earth.theta_3) - Math.sin(earth.theta_1) * Math.sin(earth.theta_2) * Math.sin(earth.theta_3), -Math.cos(earth.theta_2) * Math.sin(earth.theta_1)],
+            [-Math.cos(earth.theta_1) * Math.cos(earth.theta_3) * Math.sin(earth.theta_2) + Math.sin(earth.theta_1) * Math.sin(earth.theta_3), Math.cos(earth.theta_3) * Math.sin(earth.theta_1) + Math.cos(earth.theta_1) * Math.sin(earth.theta_2) * Math.sin(earth.theta_3), Math.cos(earth.theta_1) * Math.cos(earth.theta_2)]
+        ];
+
+        let earth_t = [
+            [earth.a * Math.sin(earth.t)],
+            [earth.b * Math.cos(earth.t)],
+            [0]
+        ];
+
+        let earth_point = mul_matrix_matrix(earth_so3, earth_t, earth_start);
+
+        engine.draw_debug_sphere(earth_point, 0.5, 0x135c1b);
+        engine.draw_debug_sphere([0,0,0], 1.0, 0xf6ff47);
     });
 
 </script>
