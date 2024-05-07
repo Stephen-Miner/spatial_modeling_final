@@ -78,31 +78,31 @@ export class ThreeEngine {
         const controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
 
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // soft white light
+        //const ambientLight = new THREE.AmbientLight(0xffffff, 0.8); // soft white light
+        //ambientLight.castShadow = true;
         // ambientLight.castShadow = true;
-        // ambientLight.castShadow = true;
-        scene.add(ambientLight);
+        //scene.add(ambientLight);
 
-        const pointLight = new THREE.PointLight(0xffffff, 70, 1000); // color, intensity, distance
+        //const pointLight = new THREE.PointLight(0xffffff, 70, 1000); // color, intensity, distance
         // pointLight.position.set(1, 5, 0); // position the light
-        z_up_set_object_position(pointLight, 1, 0, 5);
-        pointLight.castShadow = true;
+        //z_up_set_object_position(pointLight, 1, 0, 5);
+        //pointLight.castShadow = true;
         // pointLight.shadow.mapSize.width = 2048;
         // pointLight.shadow.mapSize.height = 2048;
-        scene.add(pointLight);
+        //scene.add(pointLight);
 
-        const pointLight2 = new THREE.PointLight(0xffffff, 100, 1000); // color, intensity, distance
+        //const pointLight2 = new THREE.PointLight(0xffffff, 100, 1000); // color, intensity, distance
         // pointLight2.position.set(-2, 3, 1); // position the light
-        z_up_set_object_position(pointLight2, -2, -1, 3);
-        pointLight2.castShadow = true;
+        //z_up_set_object_position(pointLight2, -2, -1, 3);
+        //pointLight2.castShadow = true;
         // pointLight2.shadow.mapSize.width = 2048;
         // pointLight2.shadow.mapSize.height = 2048;
         // scene.add(pointLight2);
 
-        const pointLight3 = new THREE.PointLight(0xffffff, 100, 1000); // color, intensity, distance
+        //const pointLight3 = new THREE.PointLight(0xffffff, 100, 1000); // color, intensity, distance
         // pointLight2.position.set(-2, 3, 1); // position the light
-        z_up_set_object_position(pointLight2, 2, -1, -3);
-        pointLight2.castShadow = true;
+        //z_up_set_object_position(pointLight2, 2, -1, -3);
+        //pointLight2.castShadow = true;
         // pointLight2.shadow.mapSize.width = 2048;
         // pointLight2.shadow.mapSize.height = 2048;
         // scene.add(pointLight3);
@@ -149,7 +149,7 @@ export class ThreeEngine {
         return engine;
     }
 
-    static new_default_3d(camera_x=3, camera_y=2, camera_z=1, orthographic_camera=false) {
+    static new_default_3d(camera_x=30, camera_y=20, camera_z=10, orthographic_camera=false) {
         let engine = ThreeEngine.#new_default_generic(orthographic_camera);
         z_up_set_object_position(engine.camera, camera_x, camera_y, camera_z);
         engine.camera.lookAt(0,0,0);
