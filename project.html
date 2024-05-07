@@ -32,78 +32,203 @@
     let engine = ThreeEngine.new_default_3d();
 
     let global_settings = {
-        ORBIT_LINE_SEGMENTS : 10
+        ORBIT_LINE_SEGMENTS : 50,
+        SIM_SPEED : 1
     };
 
-    let earth = {
-        t: 0,
-        a: 7,
-        b: 4,
-        theta_1: 0,
-        theta_2: 0,
-        theta_3: 0,
-        speed: 1
-    };
+    class Planet {
+        constructor(a, b, theta_1, theta_2, theta_3, speed){
+            this.settings = {
+                t : 0,
+                a : a,
+                b : b,
+                theta_1 : theta_1,
+                theta_2 : theta_2,
+                theta_3 : theta_3,
+                speed : speed
+            };
+            this.so3 = [
+                [Math.cos(this.settings.theta_2) * Math.cos(this.settings.theta_3), -Math.cos(this.settings.theta_2)*Math.sin(this.settings.theta_3), Math.sin(this.settings.theta_2)],
+                [Math.cos(this.settings.theta_3) * Math.sin(this.settings.theta_1) * Math.sin(this.settings.theta_2) + Math.cos(this.settings.theta_1) * Math.sin(this.settings.theta_3), Math.cos(this.settings.theta_1) * Math.cos(this.settings.theta_3) - Math.sin(this.settings.theta_1) * Math.sin(this.settings.theta_2) * Math.sin(this.settings.theta_3), -Math.cos(this.settings.theta_2) * Math.sin(this.settings.theta_1)],
+                [-Math.cos(this.settings.theta_1) * Math.cos(this.settings.theta_3) * Math.sin(this.settings.theta_2) + Math.sin(this.settings.theta_1) * Math.sin(this.settings.theta_3), Math.cos(this.settings.theta_3) * Math.sin(this.settings.theta_1) + Math.cos(this.settings.theta_1) * Math.sin(this.settings.theta_2) * Math.sin(this.settings.theta_3), Math.cos(this.settings.theta_1) * Math.cos(this.settings.theta_2)]
+            ];
 
-    let gui = get_default_lil_gui();
+            this.tr = [
+                [this.settings.a * Math.sin(this.settings.t)],
+                [this.settings.b * Math.cos(this.settings.t)],
+                [0]
+            ];
 
-    gui.add(global_settings, "ORBIT_LINE_SEGMENTS", 3, 1000);
-    let earth_controls = gui.addFolder("Earth Controls");
-    earth_controls.add(earth, "theta_1", -2 * Math.PI, 2 * Math.PI);
-    earth_controls.add(earth, "theta_2", -2 * Math.PI, 2 * Math.PI);
-    earth_controls.add(earth, "theta_3", -2 * Math.PI, 2 * Math.PI);
-    earth_controls.add(earth, "speed", -3, 3);
+        }
+        update_planet() {
+            this.so3 = [
+                [Math.cos(this.settings.theta_2) * Math.cos(this.settings.theta_3), -Math.cos(this.settings.theta_2)*Math.sin(this.settings.theta_3), Math.sin(this.settings.theta_2)],
+                [Math.cos(this.settings.theta_3) * Math.sin(this.settings.theta_1) * Math.sin(this.settings.theta_2) + Math.cos(this.settings.theta_1) * Math.sin(this.settings.theta_3), Math.cos(this.settings.theta_1) * Math.cos(this.settings.theta_3) - Math.sin(this.settings.theta_1) * Math.sin(this.settings.theta_2) * Math.sin(this.settings.theta_3), -Math.cos(this.settings.theta_2) * Math.sin(this.settings.theta_1)],
+                [-Math.cos(this.settings.theta_1) * Math.cos(this.settings.theta_3) * Math.sin(this.settings.theta_2) + Math.sin(this.settings.theta_1) * Math.sin(this.settings.theta_3), Math.cos(this.settings.theta_3) * Math.sin(this.settings.theta_1) + Math.cos(this.settings.theta_1) * Math.sin(this.settings.theta_2) * Math.sin(this.settings.theta_3), Math.cos(this.settings.theta_1) * Math.cos(this.settings.theta_2)]
+            ];
 
+            this.tr = [
+                [this.settings.a * Math.sin(this.settings.t)],
+                [this.settings.b * Math.cos(this.settings.t)],
+                [0]
+            ];
+        }
+    }
 
     function draw_orbit (engine, num_line_segments, planet) {
         let increment = Math.PI / (num_line_segments)
-        let points = []
 
         let planet_so3 = [
-            [Math.cos(planet.theta_2) * Math.cos(planet.theta_3), -Math.cos(planet.theta_2)*Math.sin(planet.theta_3), Math.sin(planet.theta_2)],
-            [Math.cos(planet.theta_3) * Math.sin(planet.theta_1) * Math.sin(planet.theta_2) + Math.cos(planet.theta_1) * Math.sin(planet.theta_3), Math.cos(planet.theta_1) * Math.cos(planet.theta_3) - Math.sin(planet.theta_1) * Math.sin(planet.theta_2) * Math.sin(planet.theta_3), -Math.cos(planet.theta_2) * Math.sin(planet.theta_1)],
-            [-Math.cos(planet.theta_1) * Math.cos(planet.theta_3) * Math.sin(planet.theta_2) + Math.sin(planet.theta_1) * Math.sin(planet.theta_3), Math.cos(planet.theta_3) * Math.sin(planet.theta_1) + Math.cos(planet.theta_1) * Math.sin(planet.theta_2) * Math.sin(planet.theta_3), Math.cos(planet.theta_1) * Math.cos(planet.theta_2)]
+            [Math.cos(planet.settings.theta_2) * Math.cos(planet.settings.theta_3), -Math.cos(planet.settings.theta_2)*Math.sin(planet.settings.theta_3), Math.sin(planet.settings.theta_2)],
+            [Math.cos(planet.settings.theta_3) * Math.sin(planet.settings.theta_1) * Math.sin(planet.settings.theta_2) + Math.cos(planet.settings.theta_1) * Math.sin(planet.settings.theta_3), Math.cos(planet.settings.theta_1) * Math.cos(planet.settings.theta_3) - Math.sin(planet.settings.theta_1) * Math.sin(planet.settings.theta_2) * Math.sin(planet.settings.theta_3), -Math.cos(planet.settings.theta_2) * Math.sin(planet.settings.theta_1)],
+            [-Math.cos(planet.settings.theta_1) * Math.cos(planet.settings.theta_3) * Math.sin(planet.settings.theta_2) + Math.sin(planet.settings.theta_1) * Math.sin(planet.settings.theta_3), Math.cos(planet.settings.theta_3) * Math.sin(planet.settings.theta_1) + Math.cos(planet.settings.theta_1) * Math.sin(planet.settings.theta_2) * Math.sin(planet.settings.theta_3), Math.cos(planet.settings.theta_1) * Math.cos(planet.settings.theta_2)]
         ];
 
         for(let i = 0; i < num_line_segments; i++) {
             let planet_t_1 = [
-                [planet.a * Math.sin(increment * (i*2))],
-                [planet.b * Math.cos(increment * (i*2))],
+                [planet.settings.a * Math.sin(increment * (i*2))],
+                [planet.settings.b * Math.cos(increment * (i*2))],
                 [0]
             ];
             let planet_t_2 = [
-                [planet.a * Math.sin(increment * (i+1)*2)],
-                [planet.b * Math.cos(increment * (i+1)*2)],
+                [planet.settings.a * Math.sin(increment * (i+1)*2)],
+                [planet.settings.b * Math.cos(increment * (i+1)*2)],
                 [0]
             ];
 
             let point_1 = mul_matrix_matrix(planet_so3, planet_t_1);
             let point_2 = mul_matrix_matrix(planet_so3, planet_t_2);
-            engine.draw_debug_line(point_1, point_2, true, 0.02)
+            engine.draw_debug_line(point_1, point_2, true, 0.02, 0x00ff6e);
         }
 
     }
 
+    let gui = get_default_lil_gui();
+
+    let mercury = new Planet(3,2,0,-0.12,0,4.1);
+    let venus = new Planet(5,4.9,0,-0.06,0, 1.62);
+    let earth = new Planet(7,6.5,0,0,0,1);
+    let mars = new Planet(9,7.5,0,-0.03,0,0.53);
+    let jupiter = new Planet(14,13,0,-0.02,0,0.08);
+    let saturn = new Planet(19,18,0,-0.059,0,0.03);
+    let uranus = new Planet(24,23.5,0,-0.013,0,0.01);
+    let neptune = new Planet(29,28.8,0,-0.03,0,0.006);
+    let pluto = new Planet(34,27,0,0.30,0,0.004);
+
+    gui.add(global_settings, "ORBIT_LINE_SEGMENTS");
+    gui.add(global_settings, "SIM_SPEED");
+
+    let mercury_controls = gui.addFolder("Mercury Controls");
+    mercury_controls.add(mercury.settings, "theta_1", -2 * Math.PI, 2 * Math.PI);
+    mercury_controls.add(mercury.settings, "theta_2", -2 * Math.PI, 2 * Math.PI);
+    mercury_controls.add(mercury.settings, "theta_3", -2 * Math.PI, 2 * Math.PI);
+    mercury_controls.add(mercury.settings, "speed", -3, 3);
+
+    let venus_controls = gui.addFolder("venus Controls");
+    venus_controls.add(venus.settings, "theta_1", -2 * Math.PI, 2 * Math.PI);
+    venus_controls.add(venus.settings, "theta_2", -2 * Math.PI, 2 * Math.PI);
+    venus_controls.add(venus.settings, "theta_3", -2 * Math.PI, 2 * Math.PI);
+    venus_controls.add(venus.settings, "speed", -3, 3);
+
+    let earth_controls = gui.addFolder("earth Controls");
+    earth_controls.add(earth.settings, "theta_1", -2 * Math.PI, 2 * Math.PI);
+    earth_controls.add(earth.settings, "theta_2", -2 * Math.PI, 2 * Math.PI);
+    earth_controls.add(earth.settings, "theta_3", -2 * Math.PI, 2 * Math.PI);
+    earth_controls.add(earth.settings, "speed", -3, 3);
+
+    let mars_controls = gui.addFolder("mars Controls");
+    mars_controls.add(mars.settings, "theta_1", -2 * Math.PI, 2 * Math.PI);
+    mars_controls.add(mars.settings, "theta_2", -2 * Math.PI, 2 * Math.PI);
+    mars_controls.add(mars.settings, "theta_3", -2 * Math.PI, 2 * Math.PI);
+    mars_controls.add(mars.settings, "speed", -3, 3);
+
+    let jupiter_controls = gui.addFolder("jupiter Controls");
+    jupiter_controls.add(jupiter.settings, "theta_1", -2 * Math.PI, 2 * Math.PI);
+    jupiter_controls.add(jupiter.settings, "theta_2", -2 * Math.PI, 2 * Math.PI);
+    jupiter_controls.add(jupiter.settings, "theta_3", -2 * Math.PI, 2 * Math.PI);
+    jupiter_controls.add(jupiter.settings, "speed", -3, 3);
+
+    let saturn_controls = gui.addFolder("saturn Controls");
+    saturn_controls.add(saturn.settings, "theta_1", -2 * Math.PI, 2 * Math.PI);
+    saturn_controls.add(saturn.settings, "theta_2", -2 * Math.PI, 2 * Math.PI);
+    saturn_controls.add(saturn.settings, "theta_3", -2 * Math.PI, 2 * Math.PI);
+    saturn_controls.add(saturn.settings, "speed", -3, 3);
+
+    let uranus_controls = gui.addFolder("uranus Controls");
+    uranus_controls.add(uranus.settings, "theta_1", -2 * Math.PI, 2 * Math.PI);
+    uranus_controls.add(uranus.settings, "theta_2", -2 * Math.PI, 2 * Math.PI);
+    uranus_controls.add(uranus.settings, "theta_3", -2 * Math.PI, 2 * Math.PI);
+    uranus_controls.add(uranus.settings, "speed", -3, 3);
+
+    let neptune_controls = gui.addFolder("neptune Controls");
+    neptune_controls.add(neptune.settings, "theta_1", -2 * Math.PI, 2 * Math.PI);
+    neptune_controls.add(neptune.settings, "theta_2", -2 * Math.PI, 2 * Math.PI);
+    neptune_controls.add(neptune.settings, "theta_3", -2 * Math.PI, 2 * Math.PI);
+    neptune_controls.add(neptune.settings, "speed", -3, 3);
+
+    let pluto_controls = gui.addFolder("pluto Controls");
+    pluto_controls.add(pluto.settings, "theta_1", -2 * Math.PI, 2 * Math.PI);
+    pluto_controls.add(pluto.settings, "theta_2", -2 * Math.PI, 2 * Math.PI);
+    pluto_controls.add(pluto.settings, "theta_3", -2 * Math.PI, 2 * Math.PI);
+    pluto_controls.add(pluto.settings, "speed", -3, 3);
+
     engine.animation_loop( ()  => {
-        earth.t = earth.t + engine.get_delta_time_from_last_frame() * (earth.speed * Math.PI);
-
-        let earth_so3 = [
-            [Math.cos(earth.theta_2) * Math.cos(earth.theta_3), -Math.cos(earth.theta_2)*Math.sin(earth.theta_3), Math.sin(earth.theta_2)],
-            [Math.cos(earth.theta_3) * Math.sin(earth.theta_1) * Math.sin(earth.theta_2) + Math.cos(earth.theta_1) * Math.sin(earth.theta_3), Math.cos(earth.theta_1) * Math.cos(earth.theta_3) - Math.sin(earth.theta_1) * Math.sin(earth.theta_2) * Math.sin(earth.theta_3), -Math.cos(earth.theta_2) * Math.sin(earth.theta_1)],
-            [-Math.cos(earth.theta_1) * Math.cos(earth.theta_3) * Math.sin(earth.theta_2) + Math.sin(earth.theta_1) * Math.sin(earth.theta_3), Math.cos(earth.theta_3) * Math.sin(earth.theta_1) + Math.cos(earth.theta_1) * Math.sin(earth.theta_2) * Math.sin(earth.theta_3), Math.cos(earth.theta_1) * Math.cos(earth.theta_2)]
-        ];
-
-        let earth_t = [
-            [earth.a * Math.sin(earth.t)],
-            [earth.b * Math.cos(earth.t)],
-            [0]
-        ];
-
-        let earth_point = mul_matrix_matrix(earth_so3, earth_t);
-
-        engine.draw_debug_sphere(earth_point, 0.5, 0x135c1b);
         engine.draw_debug_sphere([0,0,0], 1.0, 0xf6ff47);
+        let delta_t = engine.get_delta_time_from_last_frame()
+
+        mercury.settings.t = mercury.settings.t + delta_t * (mercury.settings.speed * Math.PI);
+        mercury.update_planet();
+        let mercury_point = mul_matrix_matrix(mercury.so3, mercury.tr);
+        engine.draw_debug_sphere(mercury_point, 0.07, 0x707070);
+        draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, mercury)
+
+        venus.settings.t = venus.settings.t + delta_t * (venus.settings.speed * Math.PI);
+        venus.update_planet();
+        let venus_point = mul_matrix_matrix(venus.so3, venus.tr);
+        engine.draw_debug_sphere(venus_point, 0.18, 0xf5f0f0);
+        draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, venus)
+
+        earth.settings.t = earth.settings.t + delta_t * (earth.settings.speed * Math.PI);
+        earth.update_planet();
+        let earth_point = mul_matrix_matrix(earth.so3, earth.tr);
+        engine.draw_debug_sphere(earth_point, 0.2, 0x135c1b);
         draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, earth)
+
+        mars.settings.t = mars.settings.t + delta_t * (mars.settings.speed * Math.PI);
+        mars.update_planet();
+        let mars_point = mul_matrix_matrix(mars.so3, mars.tr);
+        engine.draw_debug_sphere(mars_point, 0.1, 0xf57231);
+        draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, mars)
+
+        jupiter.settings.t = jupiter.settings.t + delta_t * (jupiter.settings.speed * Math.PI);
+        jupiter.update_planet();
+        let jupiter_point = mul_matrix_matrix(jupiter.so3, jupiter.tr);
+        engine.draw_debug_sphere(jupiter_point, 2.2, 0xf5ae8c);
+        draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, jupiter)
+
+        saturn.settings.t = saturn.settings.t + delta_t * (saturn.settings.speed * Math.PI);
+        saturn.update_planet();
+        let saturn_point = mul_matrix_matrix(saturn.so3, saturn.tr);
+        engine.draw_debug_sphere(saturn_point, 1.8, 0xeba146);
+        draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, saturn)
+
+        uranus.settings.t = uranus.settings.t + delta_t * (uranus.settings.speed * Math.PI);
+        uranus.update_planet();
+        let uranus_point = mul_matrix_matrix(uranus.so3, uranus.tr);
+        engine.draw_debug_sphere(uranus_point, 0.8, 0xcad6fc);
+        draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, uranus)
+
+        neptune.settings.t = neptune.settings.t + delta_t * (neptune.settings.speed * Math.PI);
+        neptune.update_planet();
+        let neptune_point = mul_matrix_matrix(neptune.so3, neptune.tr);
+        engine.draw_debug_sphere(neptune_point, 0.8, 0x113fd1);
+        draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, neptune)
+
+        pluto.settings.t = pluto.settings.t + delta_t * (pluto.settings.speed * Math.PI);
+        pluto.update_planet();
+        let pluto_point = mul_matrix_matrix(pluto.so3, pluto.tr);
+        engine.draw_debug_sphere(pluto_point, 0.04, 0xfafafa);
+        draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, pluto)
     });
 
 </script>
