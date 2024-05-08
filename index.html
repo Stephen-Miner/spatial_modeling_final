@@ -225,7 +225,7 @@
     pluto_controls.add(pluto.settings, "b");
 
     engine.animation_loop( ()  => {
-        engine.draw_debug_sphere([0,0,0], 7.0, 0xf6ff47);
+        engine.draw_debug_sphere([0,0,0], 7.0, 0xf6ff47, 1, 20);
         let delta_t = engine.get_delta_time_from_last_frame()
 
         mercury.settings.t = mercury.settings.t + delta_t * (global_settings.SIM_SPEED * mercury.settings.speed * Math.PI);
@@ -267,7 +267,7 @@
         jupiter.settings.t = jupiter.settings.t + delta_t * (global_settings.SIM_SPEED * jupiter.settings.speed * Math.PI);
         jupiter.update_planet();
         let jupiter_point = mul_matrix_matrix(jupiter.so3, jupiter.tr);
-        engine.draw_debug_sphere(jupiter_point, 4.4, 0xf5ae8c);
+        engine.draw_debug_sphere(jupiter_point, 4.4, 0xf5ae8c, 1, 20);
         draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, jupiter)
         if(global_settings.PLANET_POV === 5) {
             z_up_set_object_position(engine.camera, jupiter_point[0], jupiter_point[1], jupiter_point[2]+1);
@@ -276,7 +276,7 @@
         saturn.settings.t = saturn.settings.t + delta_t * (global_settings.SIM_SPEED * saturn.settings.speed * Math.PI);
         saturn.update_planet();
         let saturn_point = mul_matrix_matrix(saturn.so3, saturn.tr);
-        engine.draw_debug_sphere(saturn_point, 3.9, 0xeba146);
+        engine.draw_debug_sphere(saturn_point, 3.9, 0xeba146, 1, 20);
         draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, saturn)
         if(global_settings.PLANET_POV === 6) {
             z_up_set_object_position(engine.camera, saturn_point[0], saturn_point[1], saturn_point[2]+1);
@@ -285,7 +285,7 @@
         uranus.settings.t = uranus.settings.t + delta_t * (global_settings.SIM_SPEED * uranus.settings.speed * Math.PI);
         uranus.update_planet();
         let uranus_point = mul_matrix_matrix(uranus.so3, uranus.tr);
-        engine.draw_debug_sphere(uranus_point, 1.6, 0xcad6fc);
+        engine.draw_debug_sphere(uranus_point, 1.6, 0xcad6fc, 1, 20);
         draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, uranus)
         if(global_settings.PLANET_POV === 7) {
             z_up_set_object_position(engine.camera, uranus_point[0], uranus_point[1], uranus_point[2]+1);
@@ -294,7 +294,7 @@
         neptune.settings.t = neptune.settings.t + delta_t * (global_settings.SIM_SPEED * neptune.settings.speed * Math.PI);
         neptune.update_planet();
         let neptune_point = mul_matrix_matrix(neptune.so3, neptune.tr);
-        engine.draw_debug_sphere(neptune_point, 1.6, 0x113fd1);
+        engine.draw_debug_sphere(neptune_point, 1.6, 0x113fd1, 1, 20);
         draw_orbit(engine, global_settings.ORBIT_LINE_SEGMENTS, neptune)
         if(global_settings.PLANET_POV === 8) {
             z_up_set_object_position(engine.camera, neptune_point[0], neptune_point[1], neptune_point[2]+1);
